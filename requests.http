@@ -1,0 +1,21 @@
+POST http://localhost:3000/
+Content-Type: application/json
+
+{
+  "id": "5dbe5dc2ca7403373454eede",
+  "name": "Rogério",
+  "lastName": "Munhoz",
+  "email": "rogerio.j.munhoz@gmail.com",
+  "picture": "",
+  "location": {
+    "country": "BR",
+    "state": "SP",
+    "city": "São Paulo"
+  },
+  "language": "en-US",
+  "tags": ["typescript", "nodejs"]
+}
+
+###
+GET http://localhost:3000/5dbe5dc2ca7403373454eede
+Content-Type: application/json
