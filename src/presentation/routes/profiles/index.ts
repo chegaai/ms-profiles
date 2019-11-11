@@ -2,10 +2,12 @@ import find from './find'
 import create from './create'
 import update from './update'
 import joinGroup from './join-group'
+import leaveGroup from './leave-group'
 
 export default {
   find,
   create,
   update,
-  joinGroup
+  joinGroup,
+  leaveGroup
 }

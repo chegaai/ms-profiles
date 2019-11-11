@@ -75,6 +75,15 @@ export function addGroup (profile: Profile, groupId: ObjectId) {
   return newProfile
 }
 
+export function removeGroup (profile: Profile, groupId: string) {
+  const newProfile = clone(profile)
+
+  newProfile.groups = newProfile.groups.filter(id => !id.equals(groupId))
+  newProfile.updatedAt = new Date()
+
+  return newProfile
+}
+
 export function createProfile (data: ProfileCreationData): Profile {
   return {
     ...data,
