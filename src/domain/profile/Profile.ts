@@ -1,7 +1,11 @@
+import url from 'url'
+import omit from 'lodash.omit'
 import { ObjectId } from 'bson'
+import clone from 'lodash.clonedeep'
 import { Location } from './structures/Location'
 import { Nullable } from '../../structures/Nullable'
 import { SocialNetwork } from './structures/SocialNetwork'
+import { InvalidUrlError } from '../errors/InvalidUrlError'
 import { ProfileCreationData } from './structures/ProfileCreationData'
 
 export type Profile = {
@@ -27,7 +31,42 @@ export type ProfileDomain = {
   profileToObject (profile: Profile): unknown
 }
 
-function createProfile (data: ProfileCreationData): Profile {
+export function updateProfile (profile: Profile, changes: Partial<Profile>) {
+  const newProfile = clone(profile)
+
+  const payload = omit(changes, [
+    '_id',
+    'email',
+    'groups',
+    'deletedAt',
+    'updatedAt',
+    'createdAt'
+  ])
+
+  for (const tuple of Object.entries(payload)) {
+    const [ key, value ] = tuple
+
+    if (key === 'socialNetworks') {
+      for (const sn of value as SocialNetwork[]) {
+        try {
+          url.parse(sn.link)
+        } catch (err) {
+          throw new InvalidUrlError(sn.link)
+        }
+      }
+    }
+
+    if (value) {
+      (newProfile as any)[key] = value
+    }
+  }
+
+  newProfile.updatedAt = new Date()
+
+  return newProfile
+}
+
+export function createProfile (data: ProfileCreationData): Profile {
   return {
     ...data,
     deletedAt: null,
@@ -36,7 +75,7 @@ function createProfile (data: ProfileCreationData): Profile {
   }
 }
 
-function profileToObject ({ _id, ...profile }: Profile) {
+export function profileToObject ({ _id, ...profile }: Profile) {
   return {
     id: _id.toHexString(),
     ...profile,
