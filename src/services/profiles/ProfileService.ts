@@ -1,18 +1,20 @@
 import { ObjectId } from 'bson'
 import { GroupService } from '../groups/GroupService'
 import { ProfileNotFoundError } from './errors/ProfileNotFoundError'
-import { Profile, profileDomain, updateProfile } from '../../domain/profile/Profile'
+import { Profile, profileDomain, updateProfile, addGroup } from '../../domain/profile/Profile'
 import { ProfileRepository } from '../../data/repositories/ProfileRepository'
 import { ProfileCreationParams } from './structures/ProfileCreationParams'
 
 type CreateFn = (data: ProfileCreationParams) => Promise<Profile>
 type FindFn = (id: string) => Promise<Profile>
 type UpdateFn = (id: string, changes: Partial<Profile>) => Promise<Profile>
+type JoinGrupFn = (id: string, groupId: string) => Promise<Profile>
 
 export type ProfileService = {
   create: CreateFn
   find: FindFn
-  update: UpdateFn
+  update: UpdateFn,
+  joinGroup: JoinGrupFn
 }
 
 function findGroup (groupService: GroupService) {
@@ -65,10 +67,25 @@ export function update (repository: ProfileRepository): UpdateFn {
   }
 }
 
+export function joinGroup (repository: ProfileRepository, groupService: GroupService): JoinGrupFn {
+  return async (id, groupId) => {
+    const profile = await find(repository)(id)
+
+    await groupService.find(groupId)
+
+    const newProfile = addGroup(profile, new ObjectId(groupId))
+
+    await repository.save(newProfile)
+
+    return newProfile
+  }
+}
+
 export function getProfileService (repository: ProfileRepository, groupService: GroupService): ProfileService {
   return {
     create: create(repository, groupService),
     find: find(repository),
-    update: update(repository)
+    update: update(repository),
+    joinGroup: joinGroup(repository, groupService)
   }
 }

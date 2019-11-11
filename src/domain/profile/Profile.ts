@@ -66,6 +66,15 @@ export function updateProfile (profile: Profile, changes: Partial<Profile>) {
   return newProfile
 }
 
+export function addGroup (profile: Profile, groupId: ObjectId) {
+  if (profile.groups.find(gid => gid.equals(groupId))) return profile
+
+  const newProfile = clone(profile)
+  newProfile.groups.push(groupId)
+  newProfile.updatedAt = new Date()
+  return newProfile
+}
+
 export function createProfile (data: ProfileCreationData): Profile {
   return {
     ...data,
