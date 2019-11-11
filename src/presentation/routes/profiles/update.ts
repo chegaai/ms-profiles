@@ -64,3 +64,5 @@ export function factory (service: ProfileService) {
     }
   ]
 }
+
+export default { factory }
