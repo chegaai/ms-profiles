@@ -1,22 +1,24 @@
 import { ObjectId } from 'bson'
 import { GroupService } from '../groups/GroupService'
 import { ProfileNotFoundError } from './errors/ProfileNotFoundError'
-import { Profile, profileDomain, updateProfile, addGroup, removeGroup } from '../../domain/profile/Profile'
-import { ProfileRepository } from '../../data/repositories/ProfileRepository'
 import { ProfileCreationParams } from './structures/ProfileCreationParams'
+import { ProfileRepository } from '../../data/repositories/ProfileRepository'
+import { Profile, profileDomain, updateProfile, addGroup, removeGroup } from '../../domain/profile/Profile'
 
 type CreateFn = (data: ProfileCreationParams) => Promise<Profile>
 type FindFn = (id: string) => Promise<Profile>
 type UpdateFn = (id: string, changes: Partial<Profile>) => Promise<Profile>
 type JoinGrupFn = (id: string, groupId: string) => Promise<Profile>
 type LeaveGroupFn = (id: string, groupId: string) => Promise<Profile>
+type SearchFn = ProfileRepository['search']
 
 export type ProfileService = {
   create: CreateFn
   find: FindFn
   update: UpdateFn,
   joinGroup: JoinGrupFn,
-  leaveGroup: LeaveGroupFn
+  leaveGroup: LeaveGroupFn,
+  search: SearchFn
 }
 
 function findGroup (groupService: GroupService) {
@@ -101,6 +103,7 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     find: find(repository),
     update: update(repository),
     joinGroup: joinGroup(repository, groupService),
-    leaveGroup: leaveGroup(repository)
+    leaveGroup: leaveGroup(repository),
+    search: repository.search.bind(repository)
   }
 }
