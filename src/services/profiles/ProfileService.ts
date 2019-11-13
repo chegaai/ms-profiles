@@ -43,11 +43,8 @@ export function create (repository: ProfileRepository, groupService: GroupServic
       tags: data.tags || [],
       groups: groupIds
     })
-    try{
-      profile.picture = await blobStorageClient.uploadBase64(profile.picture)
-    }catch(error){
-    console.log(error)
-    }
+    profile.picture = await blobStorageClient.uploadBase64(profile.picture)
+
     await repository.save(profile)
 
     return profile
