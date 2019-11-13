@@ -9,6 +9,7 @@ import { Profile, profileDomain, updateProfile, addGroup, removeGroup } from '..
 type CreateFn = (data: ProfileCreationParams) => Promise<Profile>
 type FindFn = (id: string) => Promise<Profile>
 type UpdateFn = (id: string, changes: Partial<Profile>) => Promise<Profile>
+type FindManyByIdFn = ProfileRepository['findManyById']
 type JoinGrupFn = (id: string, groupId: string) => Promise<Profile>
 type LeaveGroupFn = (id: string, groupId: string) => Promise<Profile>
 type SearchFn = ProfileRepository['search']
@@ -19,7 +20,8 @@ export type ProfileService = {
   update: UpdateFn,
   joinGroup: JoinGrupFn,
   leaveGroup: LeaveGroupFn,
-  search: SearchFn
+  search: SearchFn,
+  findManyById: FindManyByIdFn
 }
 
 function findGroup (groupService: GroupService) {
@@ -108,5 +110,6 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     search: repository.search.bind(repository),
     leaveGroup: leaveGroup(repository),
     find: find(repository),
+    findManyById: repository.findManyById.bind(repository)
   }
 }

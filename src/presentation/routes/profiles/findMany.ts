@@ -1,31 +1,26 @@
 import rescue from 'express-rescue'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { validate } from '@expresso/validator'
 import { profileToObject } from '../../../domain/profile/Profile'
 import { ProfileService } from '../../../services/profiles/ProfileService'
+import { IExpressoRequest } from '@expresso/app'
 
 export function factory (service: ProfileService) {
   return [
     validate.query({
       type: 'object',
       properties: {
-        group: { type: 'string' },
-        name: { type: 'string' },
-        email: { type: 'string', format: 'email' },
+        users: { type: 'array', items: { type: 'string' } },
         page: { type: 'string', pattern: '^[0-9]+$', default: 0 },
         size: { type: 'string', pattern: '^[0-9]+$', default: 10 }
       },
-      additionalProperties: false
+      additionalProperties: false,
+      required: ['users']
     }),
-    rescue(async (req: Request, res: Response) => {
-      const { group, name, email, page, size } = req.query
+    rescue(async (req: IExpressoRequest<unknown, {}, { users: string[], page: string, size: string }>, res: Response) => {
+      const { users, page, size } = req.query
 
-      const pageInt = page ? parseInt(page, 10) : undefined
-      const sizeInt = size ? parseInt(size, 10) : undefined
-
-      const terms = { group, name, email }
-
-      const searchResult = await service.search(terms, pageInt, sizeInt)
+      const searchResult = await service.findManyById(users, parseInt(page, 10), parseInt(size, 10))
 
       const { count, results, range, total } = searchResult
 
