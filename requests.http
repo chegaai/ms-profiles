@@ -23,3 +23,9 @@ Content-Type: application/json
 ###
 GET http://localhost:3000/5dbe5dc2ca7403373454eede
 Content-Type: application/json
+
+###
+GET http://localhost:3000/?name=Rogério
+
+###
+GET http://localhost:3000/?email=rogerio.j.munhoz@gmail.com

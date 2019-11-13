@@ -18,6 +18,7 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
   const groupService = getGroupService(groupClient)
   const profileService = getProfileService(profileRepository, groupService, blobStorage)
 
+  app.get('/', routes.profiles.search.factory(profileService))
   app.post('/', routes.profiles.create.factory(profileService))
   app.get('/:id', routes.profiles.find.factory(profileService))
   app.put('/:id', routes.profiles.update.factory(profileService))
