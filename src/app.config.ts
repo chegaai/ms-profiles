@@ -7,6 +7,14 @@ export interface IAppConfig extends IExpressoConfigOptions {
   mongodb: IMongoParams,
   clients: {
     group: ClientConfig
+  },
+  azure:{
+    storage: {
+      accountName: string,
+      accountAccessKey: string,
+      containerName: string,
+      timeOut: number
+    }
   }
 }
 
@@ -20,6 +28,14 @@ export const config: IAppConfig = {
     group: {
       url: env.get('CLIENTS_GROUP_URL', ''),
       timeout: env.get.int('CLIENTS_GROUP_TIMEOUT', 3000)
+    }
+  },
+  azure:{
+    storage: {
+      accountName: env.get('AZURE_STORAGE_ACCOUNT_NAME', 'chegaai'),
+      accountAccessKey: env.get('AZURE_STORAGE_ACCOUNT_ACCESS_KEY', ''),
+      containerName: env.get('AZURE_STORAGE_CONTAINER_NAME', 'profile'),
+      timeOut: env.get('AZURE_STORAGE_TIMEOUT', 60000)
     }
   }
 }

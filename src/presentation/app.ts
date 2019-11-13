@@ -4,6 +4,7 @@ import errors from '@expresso/errors'
 import { IAppConfig } from '../app.config'
 import mongodb from '@nindoo/mongodb-data-layer'
 import { getGroupClient } from '../data/clients/GroupClient'
+import { BlobStorageClient } from '../data/clients/BlobStorageClient'
 import { getGroupService } from '../services/groups/GroupService'
 import { getProfileService } from '../services/profiles/ProfileService'
 import { ProfileRepository } from '../data/repositories/ProfileRepository'
@@ -13,8 +14,9 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
   const profileRepository = new ProfileRepository(mongodbConnection)
   const groupClient = getGroupClient(config.clients.group)
 
+  const blobStorage = new BlobStorageClient(config.azure.storage)
   const groupService = getGroupService(groupClient)
-  const profileService = getProfileService(profileRepository, groupService)
+  const profileService = getProfileService(profileRepository, groupService, blobStorage)
 
   app.post('/', routes.profiles.create.factory(profileService))
   app.get('/:id', routes.profiles.find.factory(profileService))

@@ -3,6 +3,7 @@ import { GroupService } from '../groups/GroupService'
 import { ProfileNotFoundError } from './errors/ProfileNotFoundError'
 import { Profile, profileDomain, updateProfile, addGroup, removeGroup } from '../../domain/profile/Profile'
 import { ProfileRepository } from '../../data/repositories/ProfileRepository'
+import { BlobStorageClient } from '../../data/clients/BlobStorageClient'
 import { ProfileCreationParams } from './structures/ProfileCreationParams'
 
 type CreateFn = (data: ProfileCreationParams) => Promise<Profile>
@@ -25,7 +26,7 @@ function findGroup (groupService: GroupService) {
   }
 }
 
-export function create (repository: ProfileRepository, groupService: GroupService): CreateFn {
+export function create (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): CreateFn {
   return async ({ id, ...data }) => {
     const groupIds = data.groups
       ? await Promise.all(data.groups.map(findGroup(groupService)))
@@ -40,10 +41,27 @@ export function create (repository: ProfileRepository, groupService: GroupServic
       tags: data.tags || [],
       groups: groupIds
     })
-
+    try{
+      profile.picture = await blobStorageClient.uploadBase64(profile.picture)
+    }catch(error){
+    console.log(error)
+    }
     await repository.save(profile)
 
     return profile
+  }
+}
+
+export function update (repository: ProfileRepository, blobStorageClient: BlobStorageClient): UpdateFn {
+  return async (id, changes) => {
+    const profile = await find(repository)(id)
+
+    const updatedProfile = updateProfile(profile, changes)
+    updatedProfile.picture = await blobStorageClient.uploadBase64(profile.picture)
+
+    await repository.save(updatedProfile)
+
+    return updatedProfile
   }
 }
 
@@ -54,18 +72,6 @@ export function find (repository: ProfileRepository): FindFn {
     if (!result) throw new ProfileNotFoundError(id)
 
     return result
-  }
-}
-
-export function update (repository: ProfileRepository): UpdateFn {
-  return async (id, changes) => {
-    const profile = await find(repository)(id)
-
-    const updatedProfile = updateProfile(profile, changes)
-
-    await repository.save(updatedProfile)
-
-    return updatedProfile
   }
 }
 
@@ -95,12 +101,12 @@ export function leaveGroup (repository: ProfileRepository): LeaveGroupFn {
   }
 }
 
-export function getProfileService (repository: ProfileRepository, groupService: GroupService): ProfileService {
+export function getProfileService (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): ProfileService {
   return {
-    create: create(repository, groupService),
-    find: find(repository),
-    update: update(repository),
+    create: create(repository, groupService, blobStorageClient),
     joinGroup: joinGroup(repository, groupService),
-    leaveGroup: leaveGroup(repository)
+    leaveGroup: leaveGroup(repository),
+    update: update(repository, blobStorageClient),
+    find: find(repository)
   }
 }
