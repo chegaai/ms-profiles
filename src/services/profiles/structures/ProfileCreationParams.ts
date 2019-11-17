@@ -1,6 +1,3 @@
-import { Location } from '../../../domain/profile/structures/Location'
-import { SocialNetwork } from '../../../domain/profile/structures/SocialNetwork'
-
 export type SocialNetwork = { name: string, link: string }
 
 export type Location = {
