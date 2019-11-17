@@ -33,16 +33,8 @@ function findGroup (groupService: GroupService) {
 async function uploadBase64(blobStorageClient: BlobStorageClient, base64: string){
   const url = await blobStorageClient.upload(base64)
   if(!url)
-    throw Error() //TODO: throw better error
+    throw Error() //TODO: throw better error handler
   return url
-}
-
-async function downloadBase64(blobStorageClient: BlobStorageClient, url: string){
-  const fileName = url.split('/').reverse()[0]
-  const base64 = await blobStorageClient.download(fileName)
-  if(!base64)
-    throw Error() //TODO: throw better error
-  return base64 as string
 }
 
 export function create (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): CreateFn {
@@ -71,7 +63,7 @@ export function create (repository: ProfileRepository, groupService: GroupServic
 
 export function update (repository: ProfileRepository, blobStorageClient: BlobStorageClient): UpdateFn {
   return async (id, changes) => {
-    const profile = await find(repository, blobStorageClient)(id)
+    const profile = await find(repository)(id)
 
     const updatedProfile = updateProfile(profile, changes)
     profile.picture = await uploadBase64(blobStorageClient, profile.picture)
@@ -82,20 +74,19 @@ export function update (repository: ProfileRepository, blobStorageClient: BlobSt
   }
 }
 
-export function find (repository: ProfileRepository, blobStorageClient: BlobStorageClient): FindFn {
+export function find (repository: ProfileRepository): FindFn {
   return async (id) => {
     const profile = await repository.findById(id)
 
     if (!profile) throw new ProfileNotFoundError(id)
 
-    profile.picture = await downloadBase64(blobStorageClient, profile.picture)
     return profile
   }
 }
 
-export function joinGroup (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): JoinGrupFn {
+export function joinGroup (repository: ProfileRepository, groupService: GroupService): JoinGrupFn {
   return async (id, groupId) => {
-    const profile = await find(repository, blobStorageClient)(id)
+    const profile = await find(repository)(id)
 
     await groupService.find(groupId)
 
@@ -107,9 +98,9 @@ export function joinGroup (repository: ProfileRepository, groupService: GroupSer
   }
 }
 
-export function leaveGroup (repository: ProfileRepository, blobStorageClient: BlobStorageClient): LeaveGroupFn {
+export function leaveGroup (repository: ProfileRepository): LeaveGroupFn {
   return async (id: string, groupId: string) => {
-    const profile = await find(repository, blobStorageClient)(id)
+    const profile = await find(repository)(id)
 
     const newProfile = removeGroup(profile, groupId)
 
@@ -122,11 +113,11 @@ export function leaveGroup (repository: ProfileRepository, blobStorageClient: Bl
 export function getProfileService (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): ProfileService {
   return {
     create: create(repository, groupService, blobStorageClient),
-    joinGroup: joinGroup(repository, groupService, blobStorageClient),
+    joinGroup: joinGroup(repository, groupService),
     update: update(repository, blobStorageClient),
     search: repository.search.bind(repository),
-    leaveGroup: leaveGroup(repository, blobStorageClient),
-    find: find(repository, blobStorageClient),
+    leaveGroup: leaveGroup(repository),
+    find: find(repository),
     findManyById: repository.findManyById.bind(repository)
   }
 }
