@@ -51,8 +51,7 @@ export function factory (service: ProfileService) {
         'language',
         'lastName',
         'location',
-        'name',
-        'picture'
+        'name'
       ]
     }),
     rescue(async (req: Request, res: Response) => {

@@ -7,7 +7,7 @@ export type ProfileCreationData = {
   name: string
   lastName: string
   email: string
-  picture: string
+  picture?: string
   socialNetworks: SocialNetwork[]
   location: Location
   language: string
