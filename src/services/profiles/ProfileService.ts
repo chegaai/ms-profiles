@@ -13,6 +13,7 @@ type FindManyByIdFn = ProfileRepository['findManyById']
 type JoinGrupFn = (id: string, groupId: string) => Promise<Profile>
 type LeaveGroupFn = (id: string, groupId: string) => Promise<Profile>
 type SearchFn = ProfileRepository['search']
+type ExistsFn = (email: string) => Promise<boolean>
 
 export type ProfileService = {
   create: CreateFn
@@ -21,13 +22,18 @@ export type ProfileService = {
   joinGroup: JoinGrupFn,
   leaveGroup: LeaveGroupFn,
   search: SearchFn,
-  findManyById: FindManyByIdFn
+  findManyById: FindManyByIdFn,
+  exists: ExistsFn
 }
 
 function findGroup (groupService: GroupService) {
   return async (id: string) => {
     return groupService.find(id).then(group => group.id)
   }
+}
+
+export function exists (repository: ProfileRepository): ExistsFn {
+  return async (email) => repository.existsByEmail(email)
 }
 
 export function create (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): CreateFn {
@@ -111,6 +117,7 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     search: repository.search.bind(repository),
     leaveGroup: leaveGroup(repository),
     find: find(repository),
-    findManyById: repository.findManyById.bind(repository)
+    findManyById: repository.findManyById.bind(repository),
+    exists: exists(repository)
   }
 }

@@ -18,6 +18,10 @@ export class ProfileRepository extends MongodbRepository<Profile> {
     return this.runPaginatedQuery({ _id: { $in: userObjs }, deletedAt: null }, page, size)
   }
 
+  async existsByEmail (email: string) {
+    return this.existsBy({ email })
+  }
+
   async search (terms: SearchTerms, page?: number, size?: number) {
     const query: Record<string, any> = {}
     const { group, name, email } = terms
