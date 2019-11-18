@@ -87,6 +87,7 @@ export function removeGroup (profile: Profile, groupId: string) {
 export function createProfile (data: ProfileCreationData): Profile {
   return {
     ...data,
+    picture: data.picture ?? '',
     deletedAt: null,
     createdAt: new Date(),
     updatedAt: new Date()
