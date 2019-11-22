@@ -36,6 +36,13 @@ export function exists (repository: ProfileRepository): ExistsFn {
   return async (email) => repository.existsByEmail(email)
 }
 
+async function uploadBase64(blobStorageClient: BlobStorageClient, base64: string){
+  const url = await blobStorageClient.upload(base64)
+  if(!url)
+    throw Error() //TODO: throw better error handler
+  return url
+}
+
 export function create (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): CreateFn {
   return async ({ id, ...data }) => {
     const groupIds = data.groups
@@ -52,7 +59,7 @@ export function create (repository: ProfileRepository, groupService: GroupServic
       groups: groupIds
     })
 
-    if (profile.picture) profile.picture = await blobStorageClient.uploadBase64(profile.picture)
+    profile.picture = await uploadBase64(blobStorageClient, profile.picture)
 
     await repository.save(profile)
 
@@ -65,7 +72,7 @@ export function update (repository: ProfileRepository, blobStorageClient: BlobSt
     const profile = await find(repository)(id)
 
     const updatedProfile = updateProfile(profile, changes)
-    updatedProfile.picture = await blobStorageClient.uploadBase64(profile.picture)
+    profile.picture = await uploadBase64(blobStorageClient, profile.picture)
 
     await repository.save(updatedProfile)
 
@@ -75,11 +82,11 @@ export function update (repository: ProfileRepository, blobStorageClient: BlobSt
 
 export function find (repository: ProfileRepository): FindFn {
   return async (id) => {
-    const result = await repository.findById(id)
+    const profile = await repository.findById(id)
 
-    if (!result) throw new ProfileNotFoundError(id)
+    if (!profile) throw new ProfileNotFoundError(id)
 
-    return result
+    return profile
   }
 }
 
