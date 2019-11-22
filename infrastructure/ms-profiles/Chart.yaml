@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Profile microservice
+name: ms-profiles
+version: 0.1.0
