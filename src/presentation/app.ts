@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import routes from './routes'
 import expresso from '@expresso/app'
 import errors from '@expresso/errors'
@@ -30,3 +31,5 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
 
   return app
 })
+
+export default { factory: app }

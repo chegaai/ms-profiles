@@ -6,6 +6,23 @@ import { profileToObject } from '../../../domain/profile/Profile'
 import { ProfileService } from '../../../services/profiles/ProfileService'
 import { ProfileNotFoundError } from '../../../services/profiles/errors/ProfileNotFoundError'
 import { GroupNotFoundError } from '../../../services/groups/errors/GroupNotFoundError'
+import { UnreachableServiceError } from '../../../data/clients/errors/UnreachableServiceError'
+
+export function handleErrors (err: Error, _req: Request, _res: Response, next: NextFunction) {
+  if (err instanceof UnreachableServiceError) {
+    return next(boom.serverUnavailable(err.message, { code: 'unavailable-service' }))
+  }
+
+  if (err instanceof ProfileNotFoundError) {
+    return next(boom.notFound(err.message, { code: 'profile-not-found' }))
+  }
+
+  if (err instanceof GroupNotFoundError) {
+    return next(boom.notFound(err.message, { code: 'group-not-found' }))
+  }
+
+  next(err)
+}
 
 export function factory (service: ProfileService) {
   return [
@@ -25,17 +42,7 @@ export function factory (service: ProfileService) {
       res.status(200)
         .json(profileToObject(newProfile))
     }),
-    (err: Error, _req: Request, _res: Response, next: NextFunction) => {
-      if (err instanceof ProfileNotFoundError) {
-        return next(boom.notFound(err.message, { code: 'profile-not-found' }))
-      }
-
-      if (err instanceof GroupNotFoundError) {
-        return next(boom.notFound(err.message, { code: 'group-not-found' }))
-      }
-
-      next(err)
-    }
+    handleErrors
   ]
 }
 

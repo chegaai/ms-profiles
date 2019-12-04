@@ -1,6 +1,6 @@
-import axios from 'axios'
 import { ObjectId } from 'bson'
-import { AxiosInstance } from 'axios'
+import axios, { AxiosInstance } from 'axios'
+
 import { ClientConfig } from './structures/ClientConfig'
 import { UnreachableServiceError } from './errors/UnreachableServiceError'
 
@@ -22,7 +22,7 @@ export async function findById (http: AxiosInstance, id: string): Promise<Group 
     .then(({ id, ...group }) => ({ id: new ObjectId(id), ...group }))
     .catch(err => {
       if (!err.response) throw new UnreachableServiceError('ms-groups')
-      if (err.response.code == 404) return null
+      if (err.response.status === 404) return null
 
       throw err
     })
@@ -35,7 +35,7 @@ export function getGroupClient (config: ClientConfig): GroupClient {
   })
 
   return {
-    findById: (id: string) => findById(http, id)
+    findById: async (id: string) => findById(http, id)
   }
 }
 

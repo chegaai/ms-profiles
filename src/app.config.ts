@@ -3,20 +3,20 @@ import { ClientConfig } from './data/clients/structures/ClientConfig'
 import { IExpressoConfigOptions } from '@expresso/app'
 import { IMongoParams } from '@nindoo/mongodb-data-layer'
 
-export interface IAppConfig extends IExpressoConfigOptions {
-  mongodb: IMongoParams,
+export type IAppConfig = {
+  mongodb: IMongoParams
   clients: {
     group: ClientConfig
-  },
-  azure:{
+  }
+  azure: {
     storage: {
-      accountName: string,
-      accountAccessKey: string,
-      containerName: string,
+      accountName: string
+      accountAccessKey: string
+      containerName: string
       timeOut: number
     }
   }
-}
+} & IExpressoConfigOptions
 
 export const config: IAppConfig = {
   name: 'ms-profiles',
@@ -30,7 +30,7 @@ export const config: IAppConfig = {
       timeout: env.get.int('CLIENTS_GROUP_TIMEOUT', 3000)
     }
   },
-  azure:{
+  azure: {
     storage: {
       accountName: env.get('AZURE_STORAGE_ACCOUNT_NAME', 'chegaai'),
       accountAccessKey: env.get('AZURE_STORAGE_ACCOUNT_ACCESS_KEY', ''),

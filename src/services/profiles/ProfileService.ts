@@ -1,8 +1,10 @@
 import { ObjectId } from 'bson'
 import { GroupService } from '../groups/GroupService'
 import { ProfileNotFoundError } from './errors/ProfileNotFoundError'
+import { IdAlreadyExistsError } from './errors/IdAlreadyExistsError'
 import { BlobStorageClient } from '../../data/clients/BlobStorageClient'
 import { ProfileCreationParams } from './structures/ProfileCreationParams'
+import { EmailAlreadyExistsError } from './errors/EmailAlreadyExistsError'
 import { ProfileRepository } from '../../data/repositories/ProfileRepository'
 import { Profile, profileDomain, updateProfile, addGroup, removeGroup } from '../../domain/profile/Profile'
 
@@ -18,11 +20,11 @@ type ExistsFn = (email: string) => Promise<boolean>
 export type ProfileService = {
   create: CreateFn
   find: FindFn
-  update: UpdateFn,
-  joinGroup: JoinGrupFn,
-  leaveGroup: LeaveGroupFn,
-  search: SearchFn,
-  findManyById: FindManyByIdFn,
+  update: UpdateFn
+  joinGroup: JoinGrupFn
+  leaveGroup: LeaveGroupFn
+  search: SearchFn
+  findManyById: FindManyByIdFn
   exists: ExistsFn
 }
 
@@ -36,10 +38,11 @@ export function exists (repository: ProfileRepository): ExistsFn {
   return async (email) => repository.existsByEmail(email)
 }
 
-async function uploadBase64(blobStorageClient: BlobStorageClient, base64: string){
+async function uploadBase64 (blobStorageClient: BlobStorageClient, base64: string): Promise<string> {
   const url = await blobStorageClient.upload(base64)
-  if(!url)
-    throw Error() //TODO: throw better error handler
+  if (!url) {
+    throw Error() // TODO: throw better error handler
+  }
   return url
 }
 
@@ -48,6 +51,14 @@ export function create (repository: ProfileRepository, groupService: GroupServic
     const groupIds = data.groups
       ? await Promise.all(data.groups.map(findGroup(groupService)))
       : []
+
+    if (await repository.existsById(id)) {
+      throw new IdAlreadyExistsError(id)
+    }
+
+    if (await repository.existsByEmail(data.email)) {
+      throw new EmailAlreadyExistsError(data.email)
+    }
 
     const _id = new ObjectId(id)
 
@@ -59,7 +70,7 @@ export function create (repository: ProfileRepository, groupService: GroupServic
       groups: groupIds
     })
 
-    profile.picture = await uploadBase64(blobStorageClient, profile.picture)
+    if (profile.picture) profile.picture = await uploadBase64(blobStorageClient, profile.picture)
 
     await repository.save(profile)
 
@@ -71,8 +82,9 @@ export function update (repository: ProfileRepository, blobStorageClient: BlobSt
   return async (id, changes) => {
     const profile = await find(repository)(id)
 
+    if (changes.picture) changes.picture = await uploadBase64(blobStorageClient, changes.picture)
+
     const updatedProfile = updateProfile(profile, changes)
-    profile.picture = await uploadBase64(blobStorageClient, profile.picture)
 
     await repository.save(updatedProfile)
 
