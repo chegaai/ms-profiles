@@ -1,9 +1,24 @@
 import rescue from 'express-rescue'
-import { Request, Response } from 'express'
 import { validate } from '@expresso/validator'
+import { Request, Response, NextFunction } from 'express'
 import { ProfileService } from '../../../services/profiles/ProfileService'
 import { ProfileCreationParams } from '../../../services/profiles/structures/ProfileCreationParams'
 import profileDomain from '../../../domain/profile/Profile'
+import { EmailAlreadyExistsError } from '../../../services/profiles/errors/EmailAlreadyExistsError'
+import { boom } from '@expresso/errors'
+import { IdAlreadyExistsError } from '../../../services/profiles/errors/IdAlreadyExistsError'
+
+export function handleErrors (err: Error, _req: Request, _res: Response, next: NextFunction) {
+  if (err instanceof EmailAlreadyExistsError) {
+    return next(boom.conflict(err.message, { code: 'email_already_exists' }))
+  }
+
+  if (err instanceof IdAlreadyExistsError) {
+    return next(boom.conflict(err.message, { code: 'id_already_exists' }))
+  }
+
+  next(err)
+}
 
 export function factory (service: ProfileService) {
   return [
@@ -23,7 +38,7 @@ export function factory (service: ProfileService) {
               name: { type: 'string' },
               link: { type: 'string' }
             },
-            required: [ 'link', 'name' ]
+            required: ['link', 'name']
           }
         },
         location: {
@@ -33,7 +48,7 @@ export function factory (service: ProfileService) {
             state: { type: 'string' },
             city: { type: 'string' }
           },
-          required: [ 'city', 'country', 'state' ]
+          required: ['city', 'country', 'state']
         },
         language: { type: 'string' },
         groups: {
@@ -61,7 +76,8 @@ export function factory (service: ProfileService) {
 
       res.status(201)
         .json(profileDomain.profileToObject(profile))
-    })
+    }),
+    handleErrors
   ]
 }
 

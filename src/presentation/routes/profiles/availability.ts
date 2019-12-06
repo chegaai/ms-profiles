@@ -13,7 +13,7 @@ export function factory (service: ProfileService) {
       required: ['email']
     }),
     rescue(async (req: Request, res: Response) => {
-      const { email } = req.params
+      const { email } = req.query
 
       const exists = await service.exists(email)
 

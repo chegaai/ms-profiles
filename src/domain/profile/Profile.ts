@@ -31,7 +31,7 @@ export type ProfileDomain = {
   profileToObject (profile: Profile): unknown
 }
 
-export function updateProfile (profile: Profile, changes: Partial<Profile>) {
+export function updateProfile (profile: Profile, changes: Partial<Profile>): Profile {
   const newProfile = clone(profile)
 
   const payload = omit(changes, [
@@ -44,12 +44,12 @@ export function updateProfile (profile: Profile, changes: Partial<Profile>) {
   ])
 
   for (const tuple of Object.entries(payload)) {
-    const [ key, value ] = tuple
+    const [key, value] = tuple
 
     if (key === 'socialNetworks') {
       for (const sn of value as SocialNetwork[]) {
         try {
-          url.parse(sn.link)
+          url.parse(sn.link) // eslint-disable-line
         } catch (err) {
           throw new InvalidUrlError(sn.link)
         }
@@ -66,7 +66,7 @@ export function updateProfile (profile: Profile, changes: Partial<Profile>) {
   return newProfile
 }
 
-export function addGroup (profile: Profile, groupId: ObjectId) {
+export function addGroup (profile: Profile, groupId: ObjectId): Profile {
   if (profile.groups.find(gid => gid.equals(groupId))) return profile
 
   const newProfile = clone(profile)
@@ -75,7 +75,7 @@ export function addGroup (profile: Profile, groupId: ObjectId) {
   return newProfile
 }
 
-export function removeGroup (profile: Profile, groupId: string) {
+export function removeGroup (profile: Profile, groupId: string): Profile {
   const newProfile = clone(profile)
 
   newProfile.groups = newProfile.groups.filter(id => !id.equals(groupId))
@@ -94,7 +94,7 @@ export function createProfile (data: ProfileCreationData): Profile {
   }
 }
 
-export function profileToObject ({ _id, ...profile }: Profile) {
+export function profileToObject ({ _id, ...profile }: Profile): unknown {
   return {
     id: _id.toHexString(),
     ...profile,

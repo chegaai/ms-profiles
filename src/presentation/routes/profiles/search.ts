@@ -32,7 +32,7 @@ export function factory (service: ProfileService) {
       const status = total > count ? 206 : 200
 
       if (status === 206) {
-        res.append('x-content-range', `${range.from}-${range.to}/${total}`)
+        res.append('x-content-range', `results ${range.from}-${range.to}/${total}`)
       }
 
       res.status(status)
