@@ -58,7 +58,7 @@ export function create (repository: ProfileRepository, groupService: GroupServic
       tags: data.tags || [],
       groups: groupIds
     })
-
+    
     profile.picture = await uploadBase64(blobStorageClient, profile.picture)
 
     await repository.save(profile)
