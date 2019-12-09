@@ -16,7 +16,6 @@ helm upgrade --install --atomic ms-profiles-${NAMESPACE} \
   --set "environment.DATABASE_MONGODB_URI=$DATABASE_MONGODB_URI" \
   --set "environment.AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME" \
   --set "environment.AZURE_STORAGE_ACCOUNT_ACCESS_KEY=$AZURE_STORAGE_ACCOUNT_ACCESS_KEY" \
-  --set "environment.AZURE_STORAGE_CONTAINER_NAME=$AZURE_STORAGE_CONTAINER_NAME" \
   --namespace $NAMESPACE \
   $CURRENT_DIR/ms-profiles
 
