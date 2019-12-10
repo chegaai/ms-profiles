@@ -36,7 +36,9 @@ spec:
             - name: AZURE_STORAGE_CONTAINER_NAME
               value: {{ default "profiles" .Values.environment.AZURE_STORAGE_CONTAINER_NAME | quote }}
             - name: CLIENTS_GROUP_URL
-              value: {{ required "MS Groups URL is required" .Values.environment.CLIENTS_GROUP_URL | quote }}
+              value: {{ default (tpl "http://ms-groups.{{.Release.Namespace}}.svc.cluster.local" .) .Values.environment.CLIENTS_GROUP_URL | quote }}
+            - name: NODE_ENV
+              value: {{.Release.Namespace}}
           ports:
             - name: http
               containerPort: 3000
