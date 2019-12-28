@@ -39,7 +39,7 @@ export function exists (repository: ProfileRepository): ExistsFn {
 }
 
 async function uploadBase64 (blobStorageClient: BlobStorageClient, base64: string): Promise<string> {
-  const url = await blobStorageClient.upload(base64)
+  const url = await blobStorageClient.uploadBase64(base64, 'image/*')
   if (!url) {
     throw Error() // TODO: throw better error handler
   }
