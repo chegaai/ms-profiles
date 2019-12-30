@@ -21,8 +21,8 @@ export type IAppConfig = {
 export const config: IAppConfig = {
   name: 'ms-profiles',
   mongodb: {
-    uri: env.get('MONGODB_URI', 'mongodb://localhost:27017'),
-    dbName: env.get('MONGODB_DBNAME', 'chegaai')
+    uri: env.get('DATABASE_MONGODB_URI', 'mongodb://localhost:27017'),
+    dbName: env.get('DATABASE_MONGODB_DBNAME', 'chegaai')
   },
   clients: {
     group: {
