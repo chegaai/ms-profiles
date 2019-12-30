@@ -29,12 +29,12 @@ spec:
               value: {{ default "chegaai" .Values.environment.DATABASE_MONGODB_DBNAME | quote }}
             - name: DATABASE_MONGODB_URI
               value: {{ required "Mongodb URI is required" .Values.environment.DATABASE_MONGODB_URI | quote }}
-            - name: MS_PROFILES_AZURE_STORAGE_ACCOUNT_NAME
-              value: {{ required "Storage acocunt name is required" .Values.environment.MS_PROFILES_AZURE_STORAGE_ACCOUNT_NAME | quote }}
-            - name: MS_PROFILES_AZURE_STORAGE_ACCOUNT_ACCESS_KEY
-              value: {{ required "Storage access key is required" .Values.environment.MS_PROFILES_AZURE_STORAGE_ACCOUNT_ACCESS_KEY | quote }}
-            - name: MS_PROFILES_AZURE_STORAGE_CONTAINER_NAME
-              value: {{ default "profiles" .Values.environment.MS_PROFILES_AZURE_STORAGE_CONTAINER_NAME | quote }}
+            - name: AZURE_STORAGE_ACCOUNT_NAME
+              value: {{ required "Storage acocunt name is required" .Values.environment.AZURE_STORAGE_ACCOUNT_NAME | quote }}
+            - name: AZURE_STORAGE_ACCOUNT_ACCESS_KEY
+              value: {{ required "Storage access key is required" .Values.environment.AZURE_STORAGE_ACCOUNT_ACCESS_KEY | quote }}
+            - name: AZURE_STORAGE_CONTAINER_NAME
+              value: {{ default "profiles" .Values.environment.AZURE_STORAGE_CONTAINER_NAME | quote }}
             - name: CLIENTS_GROUP_URL
               value: {{ default (tpl "http://ms-groups.{{.Release.Namespace}}.svc.cluster.local" .) .Values.environment.CLIENTS_GROUP_URL | quote }}
             - name: NODE_ENV
