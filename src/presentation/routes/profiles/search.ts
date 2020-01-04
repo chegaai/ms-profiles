@@ -9,16 +9,26 @@ export function factory (service: ProfileService) {
     validate.query({
       type: 'object',
       properties: {
-        group: { type: 'string' },
+        group: { type: 'string', pattern: '^[0-9a-f]{24}$' },
         name: { type: 'string' },
         email: { type: 'string', format: 'email' },
         page: { type: 'string', pattern: '^[0-9]+$', default: 0 },
-        size: { type: 'string', pattern: '^[0-9]+$', default: 10 }
+        size: { type: 'string', pattern: '^[0-9]+$', default: 10 },
+        count: { type: 'boolean' }
       },
       additionalProperties: false
     }),
     rescue(async (req: Request, res: Response) => {
-      const { group, name, email, page, size } = req.query
+      const { group, name, email, page, size, count: getCount = false } = req.query
+
+      if (getCount) {
+        const count = await service.getCount({ email, group, name })
+
+        res.status(200)
+          .json({ count })
+
+        return
+      }
 
       const pageInt = page ? parseInt(page, 10) : undefined
       const sizeInt = size ? parseInt(size, 10) : undefined
