@@ -8,6 +8,22 @@ export type SearchTerms = {
   email?: string
 }
 
+function buildQuery (terms: SearchTerms) {
+  const query: Record<string, any> = {}
+  const { group, name, email } = terms
+
+  if (group && ObjectId.isValid(group)) query.groups = new ObjectId(group)
+
+  if (name) {
+    const regex = new RegExp(name, 'ig')
+    query.$or = [ { name: regex }, { lasName: regex } ]
+  }
+
+  if (email) query.email = email
+
+  return query
+}
+
 export class ProfileRepository extends MongodbRepository<Profile> {
   constructor (connection: Db) {
     super(connection.collection(PROFILE_COLLECTION))
@@ -22,19 +38,13 @@ export class ProfileRepository extends MongodbRepository<Profile> {
     return this.existsBy({ email })
   }
 
+  async getCountByFilters (terms: SearchTerms) {
+    const query = buildQuery(terms)
+    return this.collection.countDocuments(query)
+  }
+
   async search (terms: SearchTerms, page?: number, size?: number): Promise<PaginatedQueryResult<Profile>> {
-    const query: Record<string, any> = {}
-    const { group, name, email } = terms
-
-    if (group && ObjectId.isValid(group)) query.groups = new ObjectId(group)
-
-    if (name) {
-      const regex = new RegExp(name, 'ig')
-      query.$or = [{ name: regex }, { lasName: regex }]
-    }
-
-    if (email) query.email = email
-
+    const query = buildQuery(terms)
     return this.runPaginatedQuery(query, page, size)
   }
 }

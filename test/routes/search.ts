@@ -86,4 +86,38 @@ describe('GET /', () => {
       expect(response.headers).to.not.have.property('x-content-range')
     })
   })
+
+  describe('when `count` parameter is true', () => {
+    let response: AxiosResponse
+
+    before(async () => {
+      await database.setState(stateNames.twoValidEmptyProfilesExist)
+      response = await api.get('/?count=true')
+    })
+
+    it('returns the results count', () => {
+      expect(response.data).to.have.property('count')
+    })
+
+    it('returns the correct count', () => {
+      expect(response.data.count).to.be.equal(2)
+    })
+  })
+
+  describe('when `count` parameter is false', () => {
+    let response: AxiosResponse
+
+    before(async () => {
+      await database.setState(stateNames.twoValidEmptyProfilesExist)
+      response = await api.get('/?count=false')
+    })
+
+    it('returns the results array', () => {
+      expect(response.data).to.be.an('array')
+    })
+
+    it('does not return the count', () => {
+      expect(response.data).not.to.have.property('count')
+    })
+  })
 })

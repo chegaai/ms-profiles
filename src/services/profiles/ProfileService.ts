@@ -5,7 +5,7 @@ import { IdAlreadyExistsError } from './errors/IdAlreadyExistsError'
 import { BlobStorageClient } from '../../data/clients/BlobStorageClient'
 import { ProfileCreationParams } from './structures/ProfileCreationParams'
 import { EmailAlreadyExistsError } from './errors/EmailAlreadyExistsError'
-import { ProfileRepository } from '../../data/repositories/ProfileRepository'
+import { ProfileRepository, SearchTerms } from '../../data/repositories/ProfileRepository'
 import { Profile, profileDomain, updateProfile, addGroup, removeGroup } from '../../domain/profile/Profile'
 
 type CreateFn = (data: ProfileCreationParams) => Promise<Profile>
@@ -16,6 +16,7 @@ type JoinGrupFn = (id: string, groupId: string) => Promise<Profile>
 type LeaveGroupFn = (id: string, groupId: string) => Promise<Profile>
 type SearchFn = ProfileRepository['search']
 type ExistsFn = (email: string) => Promise<boolean>
+type GetCountFn = (term: SearchTerms) => Promise<number>
 
 export type ProfileService = {
   create: CreateFn
@@ -26,6 +27,7 @@ export type ProfileService = {
   search: SearchFn
   findManyById: FindManyByIdFn
   exists: ExistsFn
+  getCount: GetCountFn
 }
 
 function findGroup (groupService: GroupService) {
@@ -137,6 +139,7 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     leaveGroup: leaveGroup(repository),
     find: find(repository),
     findManyById: repository.findManyById.bind(repository),
-    exists: exists(repository)
+    exists: exists(repository),
+    getCount: repository.getCountByFilters.bind(repository)
   }
 }
