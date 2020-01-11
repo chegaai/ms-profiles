@@ -7,8 +7,8 @@ replicaCount: 1
 name: ms-profiles
 env: production
 maxReplicas: 10
-cpuUsage: 60
-memoryUsage: 80
+cpuUsage: 90
+memoryUsage: 90
 
 image:
   registry: chegaai
