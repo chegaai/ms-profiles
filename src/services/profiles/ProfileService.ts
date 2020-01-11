@@ -108,7 +108,8 @@ export function find (repository: ProfileRepository): FindFn {
 
 export function remove (repository: ProfileRepository): DeleteFn {
   return async (id) => {
-    const profile = await find(repository)(id)
+    const profile = await repository.findById(id)
+    if (!profile) return
     const newProfile = deleteProfile(profile)
     await repository.save(newProfile)
   }
