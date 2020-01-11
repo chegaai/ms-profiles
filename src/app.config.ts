@@ -1,7 +1,7 @@
-import env from 'sugar-env'
-import { ClientConfig } from './data/clients/structures/ClientConfig'
 import { IExpressoConfigOptions } from '@expresso/app'
 import { IMongoParams } from '@nindoo/mongodb-data-layer'
+import env from 'sugar-env'
+import { ClientConfig } from './data/clients/structures/ClientConfig'
 
 export type IAppConfig = {
   mongodb: IMongoParams
@@ -20,6 +20,11 @@ export type IAppConfig = {
 
 export const config: IAppConfig = {
   name: 'ms-profiles',
+  bodyParser: {
+    json: {
+      limit: '10m'
+    }
+  },
   mongodb: {
     uri: env.get('DATABASE_MONGODB_URI', 'mongodb://localhost:27017'),
     dbName: env.get('DATABASE_MONGODB_DBNAME', 'chegaai')
