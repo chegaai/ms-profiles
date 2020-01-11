@@ -12,7 +12,6 @@ export type Profile = {
   _id: ObjectId
   name: string
   lastName: string
-  email: string
   picture: string
   socialNetworks: SocialNetwork[]
   location: Location
@@ -36,7 +35,6 @@ export function updateProfile (profile: Profile, changes: Partial<Profile>): Pro
 
   const payload = omit(changes, [
     '_id',
-    'email',
     'groups',
     'deletedAt',
     'updatedAt',
@@ -78,7 +76,6 @@ export function addGroup (profile: Profile, groupId: ObjectId): Profile {
 export function deleteProfile (profile: Profile): Profile {
   const newProfile: Profile = {
     ...profile,
-    email: '',
     deletedAt: new Date(),
     updatedAt: new Date(),
     groups: [],

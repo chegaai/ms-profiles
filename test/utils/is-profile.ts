@@ -5,7 +5,6 @@ export function isProfile (response: AxiosResponse) {
   expect(response.data).to.have.property('id')
   expect(response.data).to.have.property('name')
   expect(response.data).to.have.property('lastName')
-  expect(response.data).to.have.property('email')
   expect(response.data).to.have.property('picture')
   expect(response.data).to.have.property('socialNetworks')
   expect(response.data).to.have.property('location')

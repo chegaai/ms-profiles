@@ -10,7 +10,6 @@ export type ProfileCreationParams = {
   id: string
   name: string
   lastName: string
-  email: string
   picture?: string
   socialNetworks?: SocialNetwork[]
   location: Location

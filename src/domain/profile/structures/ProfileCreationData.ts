@@ -6,7 +6,6 @@ export type ProfileCreationData = {
   _id: ObjectId
   name: string
   lastName: string
-  email: string
   picture?: string
   socialNetworks: SocialNetwork[]
   location: Location
