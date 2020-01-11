@@ -6,7 +6,7 @@ import { BlobStorageClient } from '../../data/clients/BlobStorageClient'
 import { ProfileCreationParams } from './structures/ProfileCreationParams'
 import { EmailAlreadyExistsError } from './errors/EmailAlreadyExistsError'
 import { ProfileRepository, SearchTerms } from '../../data/repositories/ProfileRepository'
-import { Profile, profileDomain, updateProfile, addGroup, removeGroup } from '../../domain/profile/Profile'
+import { Profile, profileDomain, updateProfile, addGroup, removeGroup, deleteProfile } from '../../domain/profile/Profile'
 
 type CreateFn = (data: ProfileCreationParams) => Promise<Profile>
 type FindFn = (id: string) => Promise<Profile>
@@ -17,6 +17,7 @@ type LeaveGroupFn = (id: string, groupId: string) => Promise<Profile>
 type SearchFn = ProfileRepository['search']
 type ExistsFn = (email: string) => Promise<boolean>
 type GetCountFn = (term: SearchTerms) => Promise<number>
+type DeleteFn = (id: string) => Promise<void>
 
 export type ProfileService = {
   create: CreateFn
@@ -28,6 +29,7 @@ export type ProfileService = {
   findManyById: FindManyByIdFn
   exists: ExistsFn
   getCount: GetCountFn
+  delete: DeleteFn
 }
 
 function findGroup (groupService: GroupService) {
@@ -104,6 +106,14 @@ export function find (repository: ProfileRepository): FindFn {
   }
 }
 
+export function remove (repository: ProfileRepository): DeleteFn {
+  return async (id) => {
+    const profile = await find(repository)(id)
+    const newProfile = deleteProfile(profile)
+    await repository.save(newProfile)
+  }
+}
+
 export function joinGroup (repository: ProfileRepository, groupService: GroupService): JoinGrupFn {
   return async (id, groupId) => {
     const profile = await find(repository)(id)
@@ -140,6 +150,7 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     find: find(repository),
     findManyById: repository.findManyById.bind(repository),
     exists: exists(repository),
-    getCount: repository.getCountByFilters.bind(repository)
+    getCount: repository.getCountByFilters.bind(repository),
+    delete: remove(repository)
   }
 }

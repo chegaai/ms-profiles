@@ -75,6 +75,28 @@ export function addGroup (profile: Profile, groupId: ObjectId): Profile {
   return newProfile
 }
 
+export function deleteProfile (profile: Profile): Profile {
+  const newProfile: Profile = {
+    ...profile,
+    email: '',
+    deletedAt: new Date(),
+    updatedAt: new Date(),
+    groups: [],
+    language: '',
+    lastName: '',
+    location: {
+      city: '',
+      country: '',
+      state: ''
+    },
+    name: '',
+    picture: '',
+    socialNetworks: [],
+    tags: []
+  }
+  return newProfile
+}
+
 export function removeGroup (profile: Profile, groupId: string): Profile {
   const newProfile = clone(profile)
 
