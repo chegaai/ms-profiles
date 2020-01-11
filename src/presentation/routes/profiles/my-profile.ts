@@ -2,6 +2,7 @@ import { IExpressoRequest } from '@expresso/app'
 import { boom } from '@expresso/errors'
 import { NextFunction, Request, Response } from 'express'
 import rescue from 'express-rescue'
+import { profileToObject } from '../../../domain/profile/Profile'
 import { ProfileNotFoundError } from '../../../services/profiles/errors/ProfileNotFoundError'
 import { ProfileService } from '../../../services/profiles/ProfileService'
 
@@ -17,7 +18,6 @@ export function factory (service: ProfileService) {
       const onBehalfOf = Array.isArray(req.onBehalfOf)
         ? req.onBehalfOf[0]
         : req.onBehalfOf
-
       if (!onBehalfOf) {
         return res.status(403)
           .json({
@@ -32,7 +32,7 @@ export function factory (service: ProfileService) {
       const profile = await service.find(onBehalfOf)
 
       return res.status(200)
-        .json(profile)
+        .json(profileToObject(profile))
     }),
     handleErrors
   ]

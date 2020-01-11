@@ -21,6 +21,7 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
 
   app.get('/', routes.profiles.search.factory(profileService))
   app.post('/', routes.profiles.create.factory(profileService))
+  app.get('/me', routes.profiles.myProfile.factory(profileService))
   app.get('/:id', routes.profiles.find.factory(profileService))
   app.put('/:id', routes.profiles.update.factory(profileService))
   app.delete('/:id', routes.profiles.remove.factory(profileService))
@@ -28,7 +29,6 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
   app.delete('/:id/groups/:group', routes.profiles.leaveGroup.factory(profileService))
 
   app.get('/me/groups', routes.profiles.myGroups.factory(profileService))
-  app.get('/me', routes.profiles.myProfile.factory(profileService))
 
   app.use(errors(environment))
 
