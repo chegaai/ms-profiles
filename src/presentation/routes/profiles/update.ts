@@ -1,11 +1,12 @@
-import rescue from 'express-rescue'
+import { IExpressoRequest } from '@expresso/app'
 import { boom } from '@expresso/errors'
 import { validate } from '@expresso/validator'
-import { Request, Response, NextFunction } from 'express'
-import { profileToObject } from '../../../domain/profile/Profile'
-import { ProfileService } from '../../../services/profiles/ProfileService'
+import { NextFunction, Request, Response } from 'express'
+import rescue from 'express-rescue'
 import { InvalidUrlError } from '../../../domain/errors/InvalidUrlError'
+import { Profile, profileToObject } from '../../../domain/profile/Profile'
 import { ProfileNotFoundError } from '../../../services/profiles/errors/ProfileNotFoundError'
+import { ProfileService } from '../../../services/profiles/ProfileService'
 
 export function handleErrors (err: Error, _req: Request, _res: Response, next: NextFunction) {
   if (err instanceof ProfileNotFoundError) {
@@ -35,7 +36,7 @@ export function factory (service: ProfileService) {
               name: { type: 'string' },
               link: { type: 'string' }
             },
-            required: [ 'link', 'name' ]
+            required: ['link', 'name']
           }
         },
         location: {
@@ -45,7 +46,7 @@ export function factory (service: ProfileService) {
             state: { type: 'string' },
             city: { type: 'string' }
           },
-          required: [ 'city', 'country', 'state' ]
+          required: ['city', 'country', 'state']
         },
         language: { type: 'string' },
         tags: {
@@ -55,8 +56,8 @@ export function factory (service: ProfileService) {
       },
       additionalProperties: false
     }),
-    rescue(async (req: Request, res: Response) => {
-      const id = req.params.id
+    rescue(async (req: IExpressoRequest<Partial<Profile>, { id: string }>, res: Response) => {
+      const id = req.params.id ?? req.onBehalfOf
       const changes = req.body
 
       const newProfile = await service.update(id, changes)
