@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import routes from './routes'
 import expresso from '@expresso/app'
 import errors from '@expresso/errors'
-import { IAppConfig } from '../app.config'
 import mongodb from '@nindoo/mongodb-data-layer'
-import { getGroupClient } from '../data/clients/GroupClient'
+import { IAppConfig } from '../app.config'
 import { BlobStorageClient } from '../data/clients/BlobStorageClient'
+import { getGroupClient } from '../data/clients/GroupClient'
+import { ProfileRepository } from '../data/repositories/ProfileRepository'
 import { getGroupService } from '../services/groups/GroupService'
 import { getProfileService } from '../services/profiles/ProfileService'
-import { ProfileRepository } from '../data/repositories/ProfileRepository'
+import routes from './routes'
 
 export const app = expresso(async (app, config: IAppConfig, environment) => {
   const mongodbConnection = await mongodb.createConnection(config.mongodb)
@@ -28,6 +28,7 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
   app.delete('/:id/groups/:group', routes.profiles.leaveGroup.factory(profileService))
 
   app.get('/me/groups', routes.profiles.myGroups.factory(profileService))
+  app.get('/me', routes.profiles.myProfile.factory(profileService))
 
   app.use(errors(environment))
 

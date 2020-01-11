@@ -1,11 +1,12 @@
-import find from './find'
 import create from './create'
-import update from './update'
-import search from './search'
 import remove from './delete'
-import myGroups from './my-groups'
+import find from './find'
 import joinGroup from './join-group'
 import leaveGroup from './leave-group'
+import myGroups from './my-groups'
+import myProfile from './my-profile'
+import search from './search'
+import update from './update'
 
 export default {
   find,
@@ -15,5 +16,6 @@ export default {
   remove,
   joinGroup,
   leaveGroup,
-  myGroups
+  myGroups,
+  myProfile
 }
