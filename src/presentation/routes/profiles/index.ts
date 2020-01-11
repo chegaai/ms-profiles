@@ -3,6 +3,7 @@ import create from './create'
 import update from './update'
 import search from './search'
 import remove from './delete'
+import myGroups from './my-groups'
 import joinGroup from './join-group'
 import leaveGroup from './leave-group'
 
@@ -13,5 +14,6 @@ export default {
   search,
   remove,
   joinGroup,
-  leaveGroup
+  leaveGroup,
+  myGroups
 }

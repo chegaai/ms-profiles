@@ -27,6 +27,8 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
   app.post('/:id/groups', routes.profiles.joinGroup.factory(profileService))
   app.delete('/:id/groups/:group', routes.profiles.leaveGroup.factory(profileService))
 
+  app.get('/me/groups', routes.profiles.myGroups.factory(profileService))
+
   app.use(errors(environment))
 
   return app

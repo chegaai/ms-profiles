@@ -1,13 +1,13 @@
-import { Group, GroupClient } from '../../data/clients/GroupClient'
+import { ObjectId } from 'mongodb'
 import { GroupNotFoundError } from './errors/GroupNotFoundError'
-
-type FindFn = (id: string) => Promise<Group>
+import { Group, GroupClient } from '../../data/clients/GroupClient'
 
 export type GroupService = {
-  find: FindFn
+  find: (id: string) => Promise<Group>,
+  indepotentlyFind: (id: string) => Promise<Group | null>
 }
 
-export function find (client: GroupClient): FindFn {
+export function find (client: GroupClient): GroupService['find'] {
   return async (id: string) => {
     const group = await client.findById(id)
 
@@ -19,8 +19,19 @@ export function find (client: GroupClient): FindFn {
   }
 }
 
+export function indepotentlyFind (client: GroupClient): GroupService['indepotentlyFind'] {
+  return async (id: string | ObjectId) => {
+    const searchId = typeof id === 'string'
+      ? id
+      : id.toHexString()
+
+    return client.findById(searchId)
+  }
+}
+
 export function getGroupService (groupClient: GroupClient): GroupService {
   return {
-    find: find(groupClient)
+    find: find(groupClient),
+    indepotentlyFind: indepotentlyFind(groupClient)
   }
 }

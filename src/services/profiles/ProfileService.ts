@@ -1,5 +1,6 @@
 import { ObjectId } from 'bson'
 import { GroupService } from '../groups/GroupService'
+import { Group } from '../../data/clients/GroupClient'
 import { ProfileNotFoundError } from './errors/ProfileNotFoundError'
 import { IdAlreadyExistsError } from './errors/IdAlreadyExistsError'
 import { BlobStorageClient } from '../../data/clients/BlobStorageClient'
@@ -7,26 +8,17 @@ import { ProfileCreationParams } from './structures/ProfileCreationParams'
 import { ProfileRepository, SearchTerms } from '../../data/repositories/ProfileRepository'
 import { Profile, profileDomain, updateProfile, addGroup, removeGroup, deleteProfile } from '../../domain/profile/Profile'
 
-type CreateFn = (data: ProfileCreationParams) => Promise<Profile>
-type FindFn = (id: string) => Promise<Profile>
-type UpdateFn = (id: string, changes: Partial<Profile>) => Promise<Profile>
-type FindManyByIdFn = ProfileRepository['findManyById']
-type JoinGrupFn = (id: string, groupId: string) => Promise<Profile>
-type LeaveGroupFn = (id: string, groupId: string) => Promise<Profile>
-type SearchFn = ProfileRepository['search']
-type GetCountFn = (term: SearchTerms) => Promise<number>
-type DeleteFn = (id: string) => Promise<void>
-
 export type ProfileService = {
-  find: FindFn
-  create: CreateFn
-  update: UpdateFn
-  search: SearchFn
-  delete: DeleteFn
-  getCount: GetCountFn
-  joinGroup: JoinGrupFn
-  leaveGroup: LeaveGroupFn
-  findManyById: FindManyByIdFn
+  search: ProfileRepository['search']
+  delete: (id: string) => Promise<void>
+  find: (id: string) => Promise<Profile>
+  getGroups: (id: string) => Promise<Group[]>
+  findManyById: ProfileRepository['findManyById']
+  getCount: (term: SearchTerms) => Promise<number>
+  create: (data: ProfileCreationParams) => Promise<Profile>
+  joinGroup: (id: string, groupId: string) => Promise<Profile>
+  leaveGroup: (id: string, groupId: string) => Promise<Profile>
+  update: (id: string, changes: Partial<Profile>) => Promise<Profile>
 }
 
 function findGroup (groupService: GroupService) {
@@ -43,7 +35,7 @@ async function uploadBase64 (blobStorageClient: BlobStorageClient, base64: strin
   return url
 }
 
-export function create (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): CreateFn {
+export function create (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): ProfileService['create'] {
   return async ({ id, ...data }) => {
     const groupIds = data.groups
       ? await Promise.all(data.groups.map(findGroup(groupService)))
@@ -71,7 +63,7 @@ export function create (repository: ProfileRepository, groupService: GroupServic
   }
 }
 
-export function update (repository: ProfileRepository, blobStorageClient: BlobStorageClient): UpdateFn {
+export function update (repository: ProfileRepository, blobStorageClient: BlobStorageClient): ProfileService['update'] {
   return async (id, changes) => {
     const profile = await find(repository)(id)
 
@@ -85,7 +77,7 @@ export function update (repository: ProfileRepository, blobStorageClient: BlobSt
   }
 }
 
-export function find (repository: ProfileRepository): FindFn {
+export function find (repository: ProfileRepository): ProfileService['find'] {
   return async (id) => {
     const profile = await repository.findById(id)
 
@@ -95,7 +87,7 @@ export function find (repository: ProfileRepository): FindFn {
   }
 }
 
-export function remove (repository: ProfileRepository): DeleteFn {
+export function remove (repository: ProfileRepository): ProfileService['delete'] {
   return async (id) => {
     const profile = await repository.findById(id)
     if (!profile) return
@@ -104,7 +96,7 @@ export function remove (repository: ProfileRepository): DeleteFn {
   }
 }
 
-export function joinGroup (repository: ProfileRepository, groupService: GroupService): JoinGrupFn {
+export function joinGroup (repository: ProfileRepository, groupService: GroupService): ProfileService['joinGroup'] {
   return async (id, groupId) => {
     const profile = await find(repository)(id)
 
@@ -118,7 +110,7 @@ export function joinGroup (repository: ProfileRepository, groupService: GroupSer
   }
 }
 
-export function leaveGroup (repository: ProfileRepository): LeaveGroupFn {
+export function leaveGroup (repository: ProfileRepository): ProfileService['leaveGroup'] {
   return async (id: string, groupId: string) => {
     const profile = await find(repository)(id)
 
@@ -130,16 +122,30 @@ export function leaveGroup (repository: ProfileRepository): LeaveGroupFn {
   }
 }
 
+export function getGroups (repository: ProfileRepository, groupService: GroupService): ProfileService['getGroups'] {
+  return async (profileId: string) => {
+    const profile = await find(repository)(profileId)
+
+    const groupIds = profile.groups.map(groupId => groupId.toHexString())
+
+    const groups = await Promise.all(groupIds.map(async groupId => groupService.find(groupId)))
+      .then(results => results.filter(result => result !== null))
+
+    return groups
+  }
+}
+
 export function getProfileService (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): ProfileService {
   return {
-    create: create(repository, groupService, blobStorageClient),
-    joinGroup: joinGroup(repository, groupService),
-    update: update(repository, blobStorageClient),
-    search: repository.search.bind(repository),
-    leaveGroup: leaveGroup(repository),
     find: find(repository),
+    delete: remove(repository),
+    leaveGroup: leaveGroup(repository),
+    search: repository.search.bind(repository),
+    update: update(repository, blobStorageClient),
+    joinGroup: joinGroup(repository, groupService),
+    getGroups: getGroups(repository, groupService),
     findManyById: repository.findManyById.bind(repository),
     getCount: repository.getCountByFilters.bind(repository),
-    delete: remove(repository)
+    create: create(repository, groupService, blobStorageClient)
   }
 }
