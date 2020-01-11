@@ -3,17 +3,19 @@ import { ObjectId } from 'mongodb'
 import { validProfile } from '../mocks/profile'
 import sinon, { SinonStubbedInstance } from 'sinon'
 import { ProfileRepository } from '../../src/data/repositories/ProfileRepository'
-import { find, leaveGroup, ProfileService } from '../../src/services/profiles/ProfileService'
+import { find, leaveGroup, ProfileService, remove } from '../../src/services/profiles/ProfileService'
 import { ProfileNotFoundError } from '../../src/services/profiles/errors/ProfileNotFoundError'
 
 describe('profile service', () => {
   let mockRepository: SinonStubbedInstance<ProfileRepository>
   let configuredFind: ProfileService['find']
+  let configuredDelete: ProfileService['delete']
   let configuredLeaveGroup: ProfileService['leaveGroup']
 
   before(() => {
     mockRepository = sinon.createStubInstance(ProfileRepository)
     configuredFind = find(mockRepository as any)
+    configuredDelete = remove(mockRepository as any)
     configuredLeaveGroup = leaveGroup(mockRepository as any)
   })
 
@@ -45,6 +47,33 @@ describe('profile service', () => {
 
       it('returns a valid profile', () => {
         expect(result).to.have.property('_id').which.is.instanceOf(ObjectId)
+      })
+    })
+  })
+
+  describe('delete', () => {
+    describe('when profile does not exist', () => {
+      let result: any
+      before(async () => {
+        mockRepository.findById.resolves(null)
+        result = await configuredDelete('someInvalidId').catch(err => err)
+      })
+
+      it('returns undefined', () => {
+        expect(result).to.be.undefined
+      })
+    })
+
+    describe('when profile exists', () => {
+      let result: any
+
+      before(async () => {
+        mockRepository.findById.resolves(validProfile)
+        result = await configuredDelete('5de314a59e334ae02bef3d40')
+      })
+
+      it('returns a valid profile', () => {
+        expect(result).to.be.undefined
       })
     })
   })
