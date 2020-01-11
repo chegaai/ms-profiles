@@ -22,7 +22,7 @@ export const config: IAppConfig = {
   name: 'ms-profiles',
   bodyParser: {
     json: {
-      limit: '10m'
+      limit: '10mb'
     }
   },
   mongodb: {
