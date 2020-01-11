@@ -11,7 +11,6 @@ export function factory (service: ProfileService) {
       properties: {
         group: { type: 'string', pattern: '^[0-9a-f]{24}$' },
         name: { type: 'string' },
-        email: { type: 'string', format: 'email' },
         page: { type: 'string', pattern: '^[0-9]+$', default: 0 },
         size: { type: 'string', pattern: '^[0-9]+$', default: 10 },
         count: { type: 'boolean' }
@@ -19,10 +18,10 @@ export function factory (service: ProfileService) {
       additionalProperties: false
     }),
     rescue(async (req: Request, res: Response) => {
-      const { group, name, email, page, size, count: getCount = false } = req.query
+      const { group, name, page, size, count: getCount = false } = req.query
 
       if (getCount) {
-        const count = await service.getCount({ email, group, name })
+        const count = await service.getCount({ group, name })
 
         res.status(200)
           .json({ count })
@@ -33,7 +32,7 @@ export function factory (service: ProfileService) {
       const pageInt = page ? parseInt(page, 10) : undefined
       const sizeInt = size ? parseInt(size, 10) : undefined
 
-      const terms = { group, name, email }
+      const terms = { group, name }
 
       const searchResult = await service.search(terms, pageInt, sizeInt)
 

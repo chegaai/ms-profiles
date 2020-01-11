@@ -39,7 +39,7 @@ describe('PUT /:id', () => {
 
     before(async () => {
       await database.setState(stateNames.validEmptyProfileExists)
-      response = await api.put('/5de314a59e334ae02bef3d40', { email: 'new@email.com' })
+      response = await api.put('/5de314a59e334ae02bef3d40', { id: '5de314a59e334ae02bef3d41' })
     })
 
     it('returns a 422 status code', () => {

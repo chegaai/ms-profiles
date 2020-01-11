@@ -35,7 +35,7 @@ export function factory (service: ProfileService) {
               name: { type: 'string' },
               link: { type: 'string' }
             },
-            required: ['link', 'name']
+            required: [ 'link', 'name' ]
           }
         },
         location: {
@@ -45,7 +45,7 @@ export function factory (service: ProfileService) {
             state: { type: 'string' },
             city: { type: 'string' }
           },
-          required: ['city', 'country', 'state']
+          required: [ 'city', 'country', 'state' ]
         },
         language: { type: 'string' },
         tags: {

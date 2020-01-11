@@ -4,7 +4,6 @@ import { ProfileNotFoundError } from './errors/ProfileNotFoundError'
 import { IdAlreadyExistsError } from './errors/IdAlreadyExistsError'
 import { BlobStorageClient } from '../../data/clients/BlobStorageClient'
 import { ProfileCreationParams } from './structures/ProfileCreationParams'
-import { EmailAlreadyExistsError } from './errors/EmailAlreadyExistsError'
 import { ProfileRepository, SearchTerms } from '../../data/repositories/ProfileRepository'
 import { Profile, profileDomain, updateProfile, addGroup, removeGroup, deleteProfile } from '../../domain/profile/Profile'
 
@@ -15,31 +14,25 @@ type FindManyByIdFn = ProfileRepository['findManyById']
 type JoinGrupFn = (id: string, groupId: string) => Promise<Profile>
 type LeaveGroupFn = (id: string, groupId: string) => Promise<Profile>
 type SearchFn = ProfileRepository['search']
-type ExistsFn = (email: string) => Promise<boolean>
 type GetCountFn = (term: SearchTerms) => Promise<number>
 type DeleteFn = (id: string) => Promise<void>
 
 export type ProfileService = {
-  create: CreateFn
   find: FindFn
+  create: CreateFn
   update: UpdateFn
+  search: SearchFn
+  delete: DeleteFn
+  getCount: GetCountFn
   joinGroup: JoinGrupFn
   leaveGroup: LeaveGroupFn
-  search: SearchFn
   findManyById: FindManyByIdFn
-  exists: ExistsFn
-  getCount: GetCountFn
-  delete: DeleteFn
 }
 
 function findGroup (groupService: GroupService) {
   return async (id: string) => {
     return groupService.find(id).then(group => group.id)
   }
-}
-
-export function exists (repository: ProfileRepository): ExistsFn {
-  return async (email) => repository.existsByEmail(email)
 }
 
 async function uploadBase64 (blobStorageClient: BlobStorageClient, base64: string): Promise<string> {
@@ -58,10 +51,6 @@ export function create (repository: ProfileRepository, groupService: GroupServic
 
     if (await repository.existsById(id)) {
       throw new IdAlreadyExistsError(id)
-    }
-
-    if (await repository.existsByEmail(data.email)) {
-      throw new EmailAlreadyExistsError(data.email)
     }
 
     const _id = new ObjectId(id)
@@ -150,7 +139,6 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     leaveGroup: leaveGroup(repository),
     find: find(repository),
     findManyById: repository.findManyById.bind(repository),
-    exists: exists(repository),
     getCount: repository.getCountByFilters.bind(repository),
     delete: remove(repository)
   }

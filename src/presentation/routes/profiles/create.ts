@@ -1,18 +1,13 @@
 import rescue from 'express-rescue'
+import { boom } from '@expresso/errors'
 import { validate } from '@expresso/validator'
 import { Request, Response, NextFunction } from 'express'
-import { ProfileService } from '../../../services/profiles/ProfileService'
-import { ProfileCreationParams } from '../../../services/profiles/structures/ProfileCreationParams'
 import profileDomain from '../../../domain/profile/Profile'
-import { EmailAlreadyExistsError } from '../../../services/profiles/errors/EmailAlreadyExistsError'
-import { boom } from '@expresso/errors'
+import { ProfileService } from '../../../services/profiles/ProfileService'
 import { IdAlreadyExistsError } from '../../../services/profiles/errors/IdAlreadyExistsError'
+import { ProfileCreationParams } from '../../../services/profiles/structures/ProfileCreationParams'
 
 export function handleErrors (err: Error, _req: Request, _res: Response, next: NextFunction) {
-  if (err instanceof EmailAlreadyExistsError) {
-    return next(boom.conflict(err.message, { code: 'email_already_exists' }))
-  }
-
   if (err instanceof IdAlreadyExistsError) {
     return next(boom.conflict(err.message, { code: 'id_already_exists' }))
   }
@@ -28,7 +23,6 @@ export function factory (service: ProfileService) {
         id: { type: 'string' },
         name: { type: 'string' },
         lastName: { type: 'string' },
-        email: { type: 'string' },
         picture: { type: 'string' },
         socialNetworks: {
           type: 'array',
@@ -38,7 +32,7 @@ export function factory (service: ProfileService) {
               name: { type: 'string' },
               link: { type: 'string' }
             },
-            required: ['link', 'name']
+            required: [ 'link', 'name' ]
           }
         },
         location: {
@@ -48,7 +42,7 @@ export function factory (service: ProfileService) {
             state: { type: 'string' },
             city: { type: 'string' }
           },
-          required: ['city', 'country', 'state']
+          required: [ 'city', 'country', 'state' ]
         },
         language: { type: 'string' },
         groups: {
@@ -62,7 +56,6 @@ export function factory (service: ProfileService) {
       },
       required: [
         'id',
-        'email',
         'language',
         'lastName',
         'location',

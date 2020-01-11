@@ -2,7 +2,6 @@ import nock from 'nock'
 import env from 'sugar-env'
 import { expect } from 'chai'
 import axiosist from 'axiosist'
-import { ObjectId } from 'mongodb'
 import sloth from '@irontitan/sloth'
 import app from '../../src/presentation/app'
 import { isProfile } from '../utils/is-profile'
@@ -61,7 +60,7 @@ describe('POST /', () => {
 
     before(async () => {
       await database.setState('validEmptyProfileExists')
-      response = await api.post('/', { ...createProfileData, email: 'some@email.com' })
+      response = await api.post('/', { ...createProfileData })
     })
 
     it('returns a 409 status code', () => {
@@ -70,23 +69,6 @@ describe('POST /', () => {
 
     it('returns a `id_already_exists` error code', () => {
       expect(response.data.error?.code).to.be.equal('id_already_exists')
-    })
-  })
-
-  describe('when email already exists', () => {
-    let response: AxiosResponse
-
-    before(async () => {
-      await database.setState('validEmptyProfileExists')
-      response = await api.post('/', { ...createProfileData, id: new ObjectId() })
-    })
-
-    it('returns a 409 status code', () => {
-      expect(response.status).to.be.equal(409)
-    })
-
-    it('returns a `email_already_exists` error code', () => {
-      expect(response.data.error?.code).to.be.equal('email_already_exists')
     })
   })
 

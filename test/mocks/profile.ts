@@ -5,7 +5,6 @@ export const validProfile: Profile = {
   _id: new ObjectId('5de314a59e334ae02bef3d40'),
   name: 'John',
   lastName: 'Doe',
-  email: 'john.doe@company.com',
   picture: '',
   socialNetworks: [],
   location: {
@@ -23,7 +22,6 @@ export const validProfile: Profile = {
 
 export const createProfileData = {
   id: validProfile._id.toHexString(),
-  email: validProfile.email,
   language: validProfile.language,
   lastName: validProfile.lastName,
   location: validProfile.location,

@@ -5,7 +5,6 @@ import { ErrorRequestHandler } from 'express'
 import { GroupNotFoundError } from '../../src/services/groups/errors/GroupNotFoundError'
 import { ProfileNotFoundError } from '../../src/services/profiles/errors/ProfileNotFoundError'
 import { UnreachableServiceError } from '../../src/data/clients/errors/UnreachableServiceError'
-import { EmailAlreadyExistsError } from '../../src/services/profiles/errors/EmailAlreadyExistsError'
 
 const nope = null as any
 
@@ -73,14 +72,5 @@ export const groupDoesNotExist = (handleErrors: ErrorRequestHandler) => describe
     errorCode: 'group-not-found',
     statusCode: 404,
     errorInstance: new GroupNotFoundError('')
-  })
-})
-
-export const emailAlreadyExists = (handleErrors: ErrorRequestHandler) => describe('when a profile with given email already exists', () => {
-  testForError({
-    handleErrors,
-    errorCode: 'email-already-exists',
-    statusCode: 409,
-    errorInstance: new EmailAlreadyExistsError('')
   })
 })
