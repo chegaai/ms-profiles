@@ -25,6 +25,11 @@ const APP_NAME = 'ms-profiles'
 
 export const config: IAppConfig = {
   name: APP_NAME,
+  bodyParser: {
+    json: {
+      limit: '10mb'
+    }
+  },
   mongodb: {
     uri: env.get('DATABASE_MONGODB_URI', 'mongodb://localhost:27017'),
     dbName: env.get('DATABASE_MONGODB_DBNAME', 'chegaai')
