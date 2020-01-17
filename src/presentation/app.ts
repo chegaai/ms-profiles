@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import routes from './routes'
 import expresso from '@expresso/app'
 import errors from '@expresso/errors'
-import mongodb from '@nindoo/mongodb-data-layer'
+import tracing from '@expresso/tracing'
 import { IAppConfig } from '../app.config'
-import { BlobStorageClient } from '../data/clients/BlobStorageClient'
+import mongodb from '@nindoo/mongodb-data-layer'
 import { getGroupClient } from '../data/clients/GroupClient'
-import { ProfileRepository } from '../data/repositories/ProfileRepository'
 import { getGroupService } from '../services/groups/GroupService'
+import { BlobStorageClient } from '../data/clients/BlobStorageClient'
 import { getProfileService } from '../services/profiles/ProfileService'
-import routes from './routes'
+import { ProfileRepository } from '../data/repositories/ProfileRepository'
 
 export const app = expresso(async (app, config: IAppConfig, environment) => {
   const mongodbConnection = await mongodb.createConnection(config.mongodb)
@@ -18,6 +19,8 @@ export const app = expresso(async (app, config: IAppConfig, environment) => {
   const blobStorage = new BlobStorageClient(config.azure.storage)
   const groupService = getGroupService(groupClient)
   const profileService = getProfileService(profileRepository, groupService, blobStorage)
+
+  app.use(tracing.factory())
 
   app.get('/', routes.profiles.search.factory(profileService))
   app.post('/', routes.profiles.create.factory(profileService))
