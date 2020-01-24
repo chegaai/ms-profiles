@@ -23,7 +23,6 @@ export function factory (service: ProfileService) {
         id: { type: 'string' },
         name: { type: 'string' },
         lastName: { type: 'string' },
-        picture: { type: 'string' },
         socialNetworks: {
           type: 'array',
           items: {
