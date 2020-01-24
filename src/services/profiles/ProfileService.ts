@@ -1,4 +1,5 @@
 import { ObjectId } from 'bson'
+import { config } from '../../app.config'
 import { GroupService } from '../groups/GroupService'
 import { Group } from '../../data/clients/GroupClient'
 import { ProfileNotFoundError } from './errors/ProfileNotFoundError'
@@ -35,7 +36,7 @@ async function uploadBase64 (blobStorageClient: BlobStorageClient, base64: strin
   return url
 }
 
-export function create (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): ProfileService['create'] {
+export function create (repository: ProfileRepository, groupService: GroupService): ProfileService['create'] {
   return async ({ id, ...data }) => {
     const groupIds = data.groups
       ? await Promise.all(data.groups.map(findGroup(groupService)))
@@ -55,7 +56,7 @@ export function create (repository: ProfileRepository, groupService: GroupServic
       groups: groupIds
     })
 
-    if (profile.picture) profile.picture = await uploadBase64(blobStorageClient, profile.picture)
+    profile.picture = config.profileDefaultImage
 
     await repository.save(profile)
 
@@ -146,6 +147,6 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     getGroups: getGroups(repository, groupService),
     findManyById: repository.findManyById.bind(repository),
     getCount: repository.getCountByFilters.bind(repository),
-    create: create(repository, groupService, blobStorageClient)
+    create: create(repository, groupService)
   }
 }

@@ -10,6 +10,7 @@ export type IAppConfig = {
   clients: {
     group: ClientConfig
   }
+  profileDefaultImage: string,
   azure: {
     storage: {
       accountName: string
@@ -25,6 +26,7 @@ const APP_NAME = 'ms-profiles'
 
 export const config: IAppConfig = {
   name: APP_NAME,
+  profileDefaultImage: 'https://i.imgur.com/CA891Nw.png',
   bodyParser: {
     json: {
       limit: '10mb'
