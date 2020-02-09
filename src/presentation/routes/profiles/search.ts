@@ -9,7 +9,7 @@ export function factory (service: ProfileService) {
     validate.query({
       type: 'object',
       properties: {
-        group: { type: 'string', pattern: '^[0-9a-f]{24}$' },
+        group: { type: 'string' },
         name: { type: 'string' },
         page: { type: 'string', pattern: '^[0-9]+$', default: 0 },
         size: { type: 'string', pattern: '^[0-9]+$', default: 10 },
