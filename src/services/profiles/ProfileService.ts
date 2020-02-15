@@ -10,16 +10,27 @@ import { ProfileRepository, SearchTerms } from '../../data/repositories/ProfileR
 import { Profile, profileDomain, updateProfile, addGroup, removeGroup, deleteProfile } from '../../domain/profile/Profile'
 
 export type ProfileService = {
-  search: ProfileRepository['search']
+  search: ProfileRepository[ 'search' ]
   delete: (id: string) => Promise<void>
   find: (id: string) => Promise<Profile>
   getGroups: (id: string) => Promise<Group[]>
-  findManyById: ProfileRepository['findManyById']
+  findManyById: ProfileRepository[ 'findManyById' ]
   getCount: (term: SearchTerms) => Promise<number>
   create: (data: ProfileCreationParams) => Promise<Profile>
   joinGroup: (id: string, groupId: string) => Promise<Profile>
   leaveGroup: (id: string, groupId: string) => Promise<Profile>
   update: (id: string, changes: Partial<Profile>) => Promise<Profile>
+}
+
+function search (repository: ProfileRepository, groupService: GroupService): ProfileService[ 'search' ] {
+  return async (terms, page, size) => {
+    if (!terms.group) return repository.search(terms, page, size)
+
+    const { id, founder, organizers } = await groupService.find(terms.group)
+    const newTerms: SearchTerms = { ...terms, ids: [ founder, ...organizers ], group: id.toHexString() }
+
+    return repository.search(newTerms, page, size)
+  }
 }
 
 function findGroup (groupService: GroupService) {
@@ -36,7 +47,7 @@ async function uploadBase64 (blobStorageClient: BlobStorageClient, base64: strin
   return url
 }
 
-export function create (repository: ProfileRepository, groupService: GroupService): ProfileService['create'] {
+export function create (repository: ProfileRepository, groupService: GroupService): ProfileService[ 'create' ] {
   return async ({ id, ...data }) => {
     const groupIds = data.groups
       ? await Promise.all(data.groups.map(findGroup(groupService)))
@@ -64,7 +75,7 @@ export function create (repository: ProfileRepository, groupService: GroupServic
   }
 }
 
-export function update (repository: ProfileRepository, blobStorageClient: BlobStorageClient): ProfileService['update'] {
+export function update (repository: ProfileRepository, blobStorageClient: BlobStorageClient): ProfileService[ 'update' ] {
   return async (id, changes) => {
     const profile = await find(repository)(id)
 
@@ -78,7 +89,7 @@ export function update (repository: ProfileRepository, blobStorageClient: BlobSt
   }
 }
 
-export function find (repository: ProfileRepository): ProfileService['find'] {
+export function find (repository: ProfileRepository): ProfileService[ 'find' ] {
   return async (id) => {
     const profile = await repository.findById(id)
 
@@ -88,7 +99,7 @@ export function find (repository: ProfileRepository): ProfileService['find'] {
   }
 }
 
-export function remove (repository: ProfileRepository): ProfileService['delete'] {
+export function remove (repository: ProfileRepository): ProfileService[ 'delete' ] {
   return async (id) => {
     const profile = await repository.findById(id)
     if (!profile) return
@@ -97,7 +108,7 @@ export function remove (repository: ProfileRepository): ProfileService['delete']
   }
 }
 
-export function joinGroup (repository: ProfileRepository, groupService: GroupService): ProfileService['joinGroup'] {
+export function joinGroup (repository: ProfileRepository, groupService: GroupService): ProfileService[ 'joinGroup' ] {
   return async (id, groupId) => {
     const profile = await find(repository)(id)
 
@@ -111,7 +122,7 @@ export function joinGroup (repository: ProfileRepository, groupService: GroupSer
   }
 }
 
-export function leaveGroup (repository: ProfileRepository): ProfileService['leaveGroup'] {
+export function leaveGroup (repository: ProfileRepository): ProfileService[ 'leaveGroup' ] {
   return async (id: string, groupId: string) => {
     const profile = await find(repository)(id)
 
@@ -123,7 +134,7 @@ export function leaveGroup (repository: ProfileRepository): ProfileService['leav
   }
 }
 
-export function getGroups (repository: ProfileRepository, groupService: GroupService): ProfileService['getGroups'] {
+export function getGroups (repository: ProfileRepository, groupService: GroupService): ProfileService[ 'getGroups' ] {
   return async (profileId: string) => {
     const profile = await find(repository)(profileId)
 
@@ -141,7 +152,7 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     find: find(repository),
     delete: remove(repository),
     leaveGroup: leaveGroup(repository),
-    search: repository.search.bind(repository),
+    search: search(repository, groupService),
     update: update(repository, blobStorageClient),
     joinGroup: joinGroup(repository, groupService),
     getGroups: getGroups(repository, groupService),
