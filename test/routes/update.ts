@@ -6,7 +6,7 @@ import sloth from '@irontitan/sloth'
 import app from '../../src/presentation/app'
 import { config } from '../../src/app.config'
 import { isProfile } from '../utils/is-profile'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { profileNotFound } from '../utils/error-handling'
 import { States, states, stateNames } from '../utils/db/states'
 import { SlothDatabase } from '@irontitan/sloth/dist/modules/database'
@@ -14,7 +14,7 @@ import { handleErrors } from '../../src/presentation/routes/profiles/update'
 import { Profile, PROFILE_COLLECTION } from '../../src/domain/profile/Profile'
 
 describe('PUT /:id', () => {
-  let api: AxiosInstance
+  let api: any // Due to the fact that Axios has updated types and broke axiosist
   let database: SlothDatabase<States>
 
   before(async () => {

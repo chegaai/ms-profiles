@@ -6,7 +6,7 @@ import sloth from '@irontitan/sloth'
 import app from '../../src/presentation/app'
 import { isProfile } from '../utils/is-profile'
 import { States, states } from '../utils/db/states'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { createProfileData } from '../mocks/profile'
 import { config, IAppConfig } from '../../src/app.config'
 import { SlothDatabase } from '@irontitan/sloth/dist/modules/database'
@@ -23,10 +23,10 @@ const options: IAppConfig = {
 }
 
 describe('POST /', () => {
-  let api: AxiosInstance
+  let api: any // Due to the fact that Axios has updated types and broke axiosist
   let database: SlothDatabase<States>
 
-  before(async () =>{
+  before(async () => {
     database = await sloth.database.init(states)
     api = axiosist(await app.factory({ ...options, mongodb: database.config }, env.TEST))
   })

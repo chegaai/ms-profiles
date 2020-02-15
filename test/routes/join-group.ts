@@ -6,7 +6,7 @@ import { ObjectId } from 'mongodb'
 import sloth from '@irontitan/sloth'
 import app from '../../src/presentation/app'
 import { States, states } from '../utils/db/states'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { config, IAppConfig } from '../../src/app.config'
 import { SlothDatabase } from '@irontitan/sloth/dist/modules/database'
 import { PROFILE_COLLECTION, Profile } from '../../src/domain/profile/Profile'
@@ -25,7 +25,7 @@ const options: IAppConfig = {
 
 describe('POST /:id/groups', () => {
   let database: SlothDatabase<States>
-  let api: AxiosInstance
+  let api: any // Due to the fact that Axios has updated types and broke axiosist
 
   before(async () => {
     database = await sloth.database.init(states)

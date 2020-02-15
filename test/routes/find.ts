@@ -6,13 +6,13 @@ import app from '../../src/presentation/app'
 import { config } from '../../src/app.config'
 import { isProfile } from '../utils/is-profile'
 import { States, states } from '../utils/db/states'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { profileNotFound } from '../utils/error-handling'
 import { SlothDatabase } from '@irontitan/sloth/dist/modules/database'
 import { handleErrors } from '../../src/presentation/routes/profiles/find'
 
 describe('GET /:id-or-slug', () => {
-  let api: AxiosInstance
+  let api: any // Due to the fact that Axios has updated types and broke axiosist
   let database: SlothDatabase<States>
 
   before(async () => {
