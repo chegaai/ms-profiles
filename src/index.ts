@@ -1,4 +1,3 @@
-import './tracing'
 import { config } from './app.config'
 import server from './presentation/server'
 
