@@ -1,6 +1,6 @@
 import sloth from '@irontitan/sloth'
 import { SlothDatabase } from '@irontitan/sloth/dist/modules/database'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import axiosist from 'axiosist'
 import { expect } from 'chai'
 import env from 'sugar-env'
@@ -13,7 +13,7 @@ import { profileNotFound } from '../utils/error-handling'
 import { isProfile } from '../utils/is-profile'
 
 describe('GET /me', () => {
-  let api: AxiosInstance
+  let api: any // Due to the fact that Axios has updated types and broke axiosist
   let database: SlothDatabase<States>
 
   before(async () => {

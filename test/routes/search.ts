@@ -4,12 +4,12 @@ import axiosist from 'axiosist'
 import sloth from '@irontitan/sloth'
 import app from '../../src/presentation/app'
 import { config } from '../../src/app.config'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { States, states, stateNames } from '../utils/db/states'
 import { SlothDatabase } from '@irontitan/sloth/dist/modules/database'
 
 describe('GET /', () => {
-  let api: AxiosInstance
+  let api: any // Due to the fact that Axios has updated types and broke axiosist
   let database: SlothDatabase<States>
 
   before(async () => {
@@ -17,7 +17,7 @@ describe('GET /', () => {
     api = axiosist(await app.factory({ ...config, mongodb: database.config }, env.TEST))
   })
 
-  after(async () =>{
+  after(async () => {
     await database.stop()
   })
 
