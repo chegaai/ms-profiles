@@ -1,5 +1,4 @@
 import { Db, ObjectId } from 'mongodb'
-import * as opentelemetry from '@opentelemetry/core'
 import { Profile, PROFILE_COLLECTION } from '../../domain/profile/Profile'
 import { MongodbRepository, PaginatedQueryResult } from '@nindoo/mongodb-data-layer'
 
@@ -44,21 +43,6 @@ export class ProfileRepository extends MongodbRepository<Profile> {
 
   async search (terms: SearchTerms, page?: number, size?: number): Promise<PaginatedQueryResult<Profile>> {
     const query = buildQuery(terms)
-
-    const tracer = opentelemetry.getTracer()
-    const span = tracer.getCurrentSpan()
-
-    if (!span) return this.runPaginatedQuery(query, page, size)
-
-    const childSpan = tracer.startSpan('repositories:profile:runPaginatedQuery', { parent: span })
-
-    childSpan.addEvent('query', { query: JSON.stringify(query) })
-    childSpan.addEvent('terms', { terms: JSON.stringify(terms) })
-
-    const result = await this.runPaginatedQuery(query, page, size)
-
-    childSpan.end()
-
-    return result
+    return this.runPaginatedQuery(query, page, size)
   }
 }
