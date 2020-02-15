@@ -5,17 +5,17 @@
   "main": "dist/index.js",
   "scripts": {
     "prepare": "npm run lint && npm run build && npm test -- -b",
-    "clean": "rm -rf ./dist",
+    "clean": "rm tsconfig.tsbuildinfo && rm -rf ./dist",
     "test": "mocha --exit -r ts-node/register --no-warnings test/**/*.ts",
     "build": "tsc",
     "build:debug": "npm run clean && npm run build -- --sourceMap",
     "build:clean": "npm run clean && npm run build",
     "build:watch": "tsc -w",
     "start": "node dist/index.js",
-    "start:debug": "tsc && concurrently -s all \"tsc -w\" \"DEBUG=expresso:* nodemon dist/index.js\"",
+    "start:debug": "tsnd src/index.ts",
     "lint": "eslint src/**/*.ts"
   },
-  "author": [
+  "contributors": [
     "Rogério Munhoz <roz@rjmunhoz.me>",
     "Italo José <italo.i@live.com>"
   ],
@@ -35,7 +35,6 @@
     "axiosist": "^0.7.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "concurrently": "^5.0.2",
     "eslint": "^6.7.2",
     "eslint-config-standard-with-typescript": "^11.0.1",
     "eslint-plugin-import": "^2.18.2",
@@ -48,6 +47,7 @@
     "nock": "^11.7.0",
     "sinon": "^7.5.0",
     "ts-node": "^8.5.4",
+    "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.7.2",
     "why-is-node-running": "^2.1.0",
     "wtfnode": "^0.8.0"
@@ -64,7 +64,6 @@
     "express-rescue": "1.1.20",
     "lodash.clonedeep": "^4.5.0",
     "lodash.omit": "^4.5.0",
-    "nodemon": "^1.19.4",
     "sugar-env": "^1.5.9"
   },
   "peerDependencies": {
