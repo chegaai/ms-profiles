@@ -6,10 +6,14 @@ import { UnreachableServiceError } from './errors/UnreachableServiceError'
 
 type SerializedGroup = {
   id: string
+  founder: string
+  organizers: string[]
 }
 
 export type Group = {
   id: ObjectId
+  founder: string
+  organizers: string[]
 }
 
 export type GroupClient = {
