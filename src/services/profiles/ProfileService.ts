@@ -147,6 +147,17 @@ export function getGroups (repository: ProfileRepository, groupService: GroupSer
   }
 }
 
+export function getCount (repository: ProfileRepository, groupService: GroupService): ProfileService[ 'getCount' ] {
+  return async (terms) => {
+    if (!terms.group) return repository.getCountByFilters(terms)
+
+    const { id, founder, organizers } = await groupService.find(terms.group)
+    const newTerms: SearchTerms = { ...terms, ids: [ founder, ...organizers ], group: id.toHexString() }
+
+    return repository.getCountByFilters(newTerms)
+  }
+}
+
 export function getProfileService (repository: ProfileRepository, groupService: GroupService, blobStorageClient: BlobStorageClient): ProfileService {
   return {
     find: find(repository),
@@ -157,7 +168,7 @@ export function getProfileService (repository: ProfileRepository, groupService: 
     joinGroup: joinGroup(repository, groupService),
     getGroups: getGroups(repository, groupService),
     findManyById: repository.findManyById.bind(repository),
-    getCount: repository.getCountByFilters.bind(repository),
+    getCount: getCount(repository, groupService),
     create: create(repository, groupService)
   }
 }
