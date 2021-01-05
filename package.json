@@ -58,7 +58,7 @@
     "@expresso/tracing": "^1.0.6",
     "@expresso/validator": "^1.1.1",
     "@nindoo/mongodb-data-layer": "^3.0.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "azure-blob-storage-client": "^1.1.0",
     "express-rescue": "1.1.20",
     "lodash.clonedeep": "^4.5.0",
